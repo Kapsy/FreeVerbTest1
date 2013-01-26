@@ -42,6 +42,42 @@ public class FreeVerbMain extends Activity {
 		 //startAudio();
 	}
 	
+	private final ServiceConnection pdConnection = new ServiceConnection() {
+		
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			pdService = ((PdService.PdBinder)service).getService();
+			initPd();
+		}
+	
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			// this method will never be called
+		}
+	};
+	
+	private void initPd() {
+		Resources res = getResources();
+		File patchFile = null;
+		
+		try {
+		
+			pdService.initAudio(44100, 0, 2, 150F);   // negative values will be replaced with defaults/preferences
+		
+			PdBase.setReceiver(receiver);
+			PdBase.subscribe("android");
+			InputStream in = res.openRawResource(R.raw.pulse_01);
+			patchFile = IoUtils.extractResource(in, "pulse_01.pd", getCacheDir());
+			PdBase.openPatch(patchFile);
+					
+		} catch (IOException e) {
+			Log.e(TAG, e.toString());
+			finish();
+		} finally {
+			if (patchFile != null) patchFile.delete();
+		}
+	}
+
 	private Toast toast = null;
 	
 	private void toast(final String msg) {
@@ -102,57 +138,19 @@ public class FreeVerbMain extends Activity {
 			pdPost("symbol: " + symbol);
 		}
 	};
-	
-	private final ServiceConnection pdConnection = new ServiceConnection() {
 		
-			@Override
-			public void onServiceConnected(ComponentName name, IBinder service) {
-				pdService = ((PdService.PdBinder)service).getService();
-				initPd();
-		}
-
-		@Override
-		public void onServiceDisconnected(ComponentName name) {
-			// this method will never be called
-		}
-	};
-	
-	private void initPd() {
-		Resources res = getResources();
-		File patchFile = null;
-		try {
-			PdBase.setReceiver(receiver);
-			PdBase.subscribe("android");
-			InputStream in = res.openRawResource(R.raw.pulse_01);
-			patchFile = IoUtils.extractResource(in, "pulse_01.pd", getCacheDir());
-			PdBase.openPatch(patchFile);
-			
-					
-		} catch (IOException e) {
-			Log.e(TAG, e.toString());
-			finish();
-		} finally {
-			if (patchFile != null) patchFile.delete();
-		}
-	}
-			
-	
 	public void startButton(View V) {
 		Log.d("BTN", "button pressed");
 		startAudio();
-
+		
 	}
 	
 	private void startAudio() {
 		String name = getResources().getString(R.string.app_name);
-		try {
-			pdService.initAudio(22050, 0, 2, 150F);   // negative values will be replaced with defaults/preferences
-			pdService.startAudio(new Intent(this, FreeVerbMain.class), R.drawable.icon, name, "Return to " + name + ".");
-		} catch (IOException e) {
-			Log.e(TAG, e.toString());
-		}
-	}
 	
+		pdService.startAudio(new Intent(this, FreeVerbMain.class), R.drawable.icon, name, "Return to " + name + ".");
+		
+	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

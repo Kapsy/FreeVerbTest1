@@ -23,9 +23,8 @@ public final class R {
         public static final int icon=0x7f020001;
     }
     public static final class id {
-        public static final int button1=0x7f0a0001;
-        public static final int menu_settings=0x7f0a0002;
-        public static final int textView1=0x7f0a0000;
+        public static final int button1=0x7f0a0000;
+        public static final int menu_settings=0x7f0a0001;
     }
     public static final class layout {
         public static final int main=0x7f030000;
@@ -53,6 +52,7 @@ public final class R {
         public static final int pref_title_inchannels=0x7f070006;
         public static final int pref_title_outchannels=0x7f070009;
         public static final int pref_title_srate=0x7f070003;
+        public static final int start_button=0x7f07000e;
     }
     public static final class style {
         /** 
